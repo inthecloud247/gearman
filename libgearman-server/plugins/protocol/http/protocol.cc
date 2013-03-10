@@ -176,6 +176,7 @@ public:
                        gearmand::protocol::httpd::response(response()));
 
     size_t pack_size= 0;
+    if ( 1 ) _sent_header= true;
     if (_sent_header == false)
     {
       if (response() != gearmand::protocol::httpd::HTTP_OK)
@@ -546,6 +547,11 @@ public:
 
     gearmand_info("Receiving HTTP response(finished)");
 
+    if ( 1 ) { 
+      packet->data_size=  data_size;
+      offset = 0;
+    }
+
     return offset;
   }
 
@@ -627,6 +633,7 @@ private:
   bool _sent_header;
   bool _background;
   bool _keep_alive;
+  bool _raw;
   std::string global_port;
   gearmand::protocol::httpd::response_t _http_response;
   std::vector<char> content;
@@ -656,15 +663,24 @@ HTTP::HTTP() :
 {
   command_line_options().add_options()
     ("http-port", boost::program_options::value(&_port)->default_value(GEARMAN_PROTOCOL_HTTP_DEFAULT_PORT), "Port to listen on.");
+  command_line_options().add_options()
+    ("http-raw", boost::program_options::value(&_raw)->default_value(false), "RAW workload and responses.");
 }
 
 HTTP::~HTTP()
 {
 }
 
+bool HTTP::raw()
+{
+  return _raw;
+}
+
 gearmand_error_t HTTP::start(gearmand_st *gearmand)
 {
   gearmand_info("Initializing HTTP");
+  if ( _raw ) gearmand_error("HTTP RAW activated");
+
   return gearmand_port_add(gearmand, _port.c_str(), _http_con_add);
 }
 

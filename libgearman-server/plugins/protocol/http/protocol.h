@@ -58,11 +58,13 @@ public:
 
   HTTP();
   ~HTTP();
-
+  
+  bool raw();
   gearmand_error_t start(gearmand_st *gearmand);
 
 private:
   std::string _port;
+  bool _raw;
 };
 
 } // namespace protocol
